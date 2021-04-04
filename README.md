@@ -1,5 +1,7 @@
 # LuckyBastard
 
+![LuckyBastard Preview](luckybastard.gif)
+
 **Are You Lucky Bastard ???**
 
 Generate random hex seeds to find out!

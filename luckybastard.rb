@@ -7,6 +7,9 @@ require 'net/http'
 
 class LuckyBastard
 
+  LIST = false.freeze
+  SEED = "path_to_file.txt".freeze
+  
   def self.start!(max_sleep = 2, type = :sent)
     LuckyBastard.new(max_sleep, type).start
   end
@@ -18,6 +21,7 @@ class LuckyBastard
     @paused  = false
     @pause   = max_sleep
     @start   = Time.now.to_i
+    load_seed_list if LIST == true
   end
 
   def pause=(max_sleep)
@@ -48,7 +52,7 @@ class LuckyBastard
   private
 
   def execute
-    random_private_key!
+    generate_private_key!
     check @address
     @count += 1
     if @balance > 0.0
@@ -71,9 +75,19 @@ class LuckyBastard
     end
   end
 
-  def random_private_key!
-    @hex_seed = SecureRandom.hex 32
-    @address  = MoneyTree::Master.new(seed_hex: @hex_seed).to_address
+  def generate_private_key( from_list = LIST )
+    if from_list == true
+      @hex_seed = @seeds[@counter]
+      @address  = MoneyTree::Master.new(seed_raw: @hex_seed).to_address
+    else
+      @hex_seed = SecureRandom.hex 32
+      @address  = MoneyTree::Master.new(seed_hex: @hex_seed).to_address
+    end
+  end
+    
+  def load_seed_list
+    @seeds = File.open(SEED, 'r').split("\n")
+    return @seeds
   end
 
   def check(address)

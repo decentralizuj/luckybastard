@@ -57,7 +57,7 @@ class LuckyBastard
     @count += 1
     if @balance > 0.0
       @end = Time.now.to_i - @start
-      write_to_file(@address, @balance, @hex_seed)
+      write_to_file(@address, @balance, @seed)
       puts "[*] Valid seed found in #{(@end / 60)} minutes".yellow
       puts "[!] Enter 'Q' to quit, or any key to continue (q/Q):".yellow
       answer = STDIN.gets.chomp
@@ -69,7 +69,7 @@ class LuckyBastard
       puts " coins on random address".green
       puts "\n " +" #{@counter} ".black.on_yellow + " random seeds checked...".yellow
       puts ""
-      write_to_file(@address, @balance, @hex_seed, save: false)
+      write_to_file(@address, @balance, @seed, save: false)
       @count = 0
       sleep rand(pause)
     end
@@ -77,16 +77,17 @@ class LuckyBastard
 
   def generate_private_key( from_list = LIST )
     if from_list == true
-      @hex_seed = @seeds[@counter]
+      @seed = @seeds[(@seed_count += 1).pred]
       @address  = MoneyTree::Master.new(seed_raw: @hex_seed).to_address
     else
-      @hex_seed = SecureRandom.hex 32
+      @seed = SecureRandom.hex 32
       @address  = MoneyTree::Master.new(seed_hex: @hex_seed).to_address
     end
   end
     
   def load_seed_list
     @seeds = File.open(SEED, 'r').split("\n")
+    @seed_count = 0
     return @seeds
   end
 
